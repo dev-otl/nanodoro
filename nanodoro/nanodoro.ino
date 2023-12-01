@@ -58,9 +58,9 @@ static const unsigned char PROGMEM logo_bmp[] = {
   0b00000000, 0b00110000
 };
 
-#define PIN_SPEAKER 15
-#define PIN_PB_0_0 2
-#define PIN_PB_0_1 4
+#define PIN_SPEAKER 2
+#define PIN_PB_0_0 7
+#define PIN_PB_0_1 9
 #define PIN_PB_1_0 10
 #define PIN_PB_1_1 12
 
@@ -104,7 +104,7 @@ void setup() {
 
   //init speaker
   pinMode(PIN_SPEAKER, OUTPUT);
-  digitalWrite(PIN_SPEAKER, 1);  //off
+  digitalWrite(PIN_SPEAKER, 0);  //off
 
 
   //init buttons
@@ -139,20 +139,12 @@ void setup() {
     if (currentTimeSpeaker - prevTimeSpeaker >= 250) {
       prevTimeSpeaker = currentTimeSpeaker;
       if (should_beep) pomodoro_speaker_timer_callback();
-      else digitalWrite(PIN_SPEAKER, 1);  //off
+      else digitalWrite(PIN_SPEAKER, 0);  //off
     }
   }
 }
 
 void loop() {
-}
-
-void ISR_pb0() {
-  play_pause_button_pressed = 1;
-}
-
-void ISR_pb1() {
-  stop_button_pressed = 1;
 }
 
 
