@@ -135,6 +135,8 @@ void setup() {
     if (currentTime - prevTime >= 1000) {  //1s timer time up
       prevTime = currentTime;
       pomodoro_system_timer_callback();
+      play_pause_button_pressed = 0;
+      stop_button_pressed = 0;
     }
     if (currentTimeSpeaker - prevTimeSpeaker >= 250) {
       prevTimeSpeaker = currentTimeSpeaker;
@@ -192,7 +194,6 @@ int getCurrentSessionTime() {
 }
 
 void pomodoro_system_timer_callback() {
-  should_beep = 1;
   switch (currentState) {
     case POMO_STATE_INIT:
       should_beep = 0;
@@ -200,51 +201,46 @@ void pomodoro_system_timer_callback() {
       currentTimer = getCurrentSessionTime();
       if (play_pause_button_pressed) {
         currentState = POMO_STATE_RUNNING;
-        play_pause_button_pressed = 0;
-      }
-      if (stop_button_pressed) {
-        stop_button_pressed = 0;
       }
       break;
     case POMO_STATE_RUNNING:
       should_beep = 0;
       if (--currentTimer == 0) {
+        should_beep = 1;
         currentState = POMO_STATE_STOPPED;
         currentSession = (currentSession + 1) % 8;
         currentTimer = getCurrentSessionTime();
       } else {
         if (play_pause_button_pressed) {
+          should_beep = 1;
           currentState = POMO_STATE_PAUSED;
-          play_pause_button_pressed = 0;
-        }
-        if (stop_button_pressed) {
+        } else if (stop_button_pressed) {
+          should_beep = 1;
           currentState = POMO_STATE_STOPPED;
           currentTimer = getCurrentSessionTime();
-          stop_button_pressed = 0;
         }
       }
       break;
     case POMO_STATE_PAUSED:
       if (play_pause_button_pressed) {
         currentState = POMO_STATE_RUNNING;
-        play_pause_button_pressed = 0;
       }
       if (stop_button_pressed) {
+        should_beep = 0;
         currentState = POMO_STATE_STOPPED;
         currentTimer = getCurrentSessionTime();
-        stop_button_pressed = 0;
       }
       break;
     case POMO_STATE_STOPPED:
       if (play_pause_button_pressed) {
         currentState = POMO_STATE_RUNNING;
-        play_pause_button_pressed = 0;
+      } else if (stop_button_pressed) {
+        should_beep = 0;
       }
       break;
     default:
       break;
   }
-  play_pause_button_pressed = stop_button_pressed = 0;
   updateDisplay();
 }
 
